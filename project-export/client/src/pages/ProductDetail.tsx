@@ -16,22 +16,20 @@ export default function ProductDetail() {
   const { data: product, isLoading } = useQuery<Product>({
     queryKey: ["/api/products", id],
     queryFn: async () => {
-      // Define the base URL (uses your Render backend link in production)
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
-
-// Fetch using the full URL + your specific query
-const res = await fetch(`${baseUrl}/api/products?featured=true`);
-
-if (!res.ok) throw new Error("Failed to fetch products");
-return res.json();
-
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+      const res = await fetch(`${baseUrl}/api/products/${id}`);
+      
+      if (!res.ok) throw new Error("Failed to fetch product");
+      return res.json();
     },
   });
 
   const { data: category } = useQuery<Category>({
     queryKey: ["/api/categories", product?.categoryId],
     queryFn: async () => {
-      const res = await fetch(`/api/categories/${product?.categoryId}`);
+      // FIX: Use baseUrl here too
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+      const res = await fetch(`${baseUrl}/api/categories/${product?.categoryId}`);
       if (!res.ok) throw new Error("Failed to fetch category");
       return res.json();
     },
@@ -50,7 +48,7 @@ return res.json();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white p-6">
+      <div className="min-h-screen bg-white dark:bg-black p-6 transition-colors duration-300">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-10">
             <Skeleton className="aspect-square rounded-3xl" />
@@ -68,7 +66,7 @@ return res.json();
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center transition-colors duration-300">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4 dark:text-white">Product not found</h1>
           <Link href="/shop">
@@ -81,25 +79,25 @@ return res.json();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300 py-12 px-6">
-      <div className="py-16 px-6 bg-gray-50 dark:bg-gray-900 transition-colors duration-300 py-4 px-6">
-        <div className="max-w-6xl mx-auto flex items-center text-sm ">
+      <div className="py-4 px-6 bg-gray-50 dark:bg-black transition-colors duration-300">
+        <div className="max-w-6xl mx-auto flex items-center text-sm">
           <Link href="/">
-            <span className="text-gray-500 hover:text-gray-900 cursor-pointer">Home</span>
+            <span className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 cursor-pointer">Home</span>
           </Link>
           <span className="text-gray-400 mx-2">/</span>
           <Link href="/shop">
-            <span className="text-gray-500 hover:text-gray-900 cursor-pointer">Shop</span>
+            <span className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 cursor-pointer">Shop</span>
           </Link>
           <span className="text-gray-400 mx-2">/</span>
           {category && (
             <>
               <Link href={`/shop?category=${category.id}`}>
-                <span className="text-gray-500 hover:text-gray-900 cursor-pointer">{category.name}</span>
+                <span className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 cursor-pointer">{category.name}</span>
               </Link>
               <span className="text-gray-400 mx-2">/</span>
             </>
           )}
-          <span className="text-gray-900">{product.name}</span>
+          <span className="text-gray-900 dark:text-white font-medium">{product.name}</span>
         </div>
       </div>
 
@@ -117,13 +115,14 @@ return res.json();
             <h1 className="font-['Playfair_Display'] text-3xl md:text-4xl font-bold mb-2 dark:text-white">
               {product.name}
             </h1>
-            <p className="text-gray-500 mb-4">{product.volume} • {product.abv}% ABV</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">{product.volume} • {product.abv}% ABV</p>
             
             <p className="font-['Poppins'] text-3xl font-bold text-[#333333] dark:text-white mb-6">
-              {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(product.price)}
+              {/* FIX: Ensure price is treated as a number */}
+              {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(product.price))}
             </p>
 
-            <p className="text-gray-600 mb-8 leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
               {product.description}
             </p>
 
@@ -132,7 +131,7 @@ return res.json();
                 {product.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="bg-gray-100 dark:bg-gray-900 text-gray-600 px-3 py-1 rounded-full text-sm"
+                    className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full text-sm"
                   >
                     {tag}
                   </span>
@@ -141,22 +140,22 @@ return res.json();
             )}
 
             <div className="flex items-center gap-4 mb-8">
-              <div className="flex items-center border rounded-xl overflow-hidden">
+              <div className="flex items-center border dark:border-gray-700 rounded-xl overflow-hidden">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-3 hover:bg-gray-100 font-bold text-lg"
+                  className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-white font-bold text-lg"
                 >
                   -
                 </button>
-                <span className="px-6 py-3 font-['Poppins'] font-medium">{quantity}</span>
+                <span className="px-6 py-3 font-['Poppins'] font-medium dark:text-white">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-4 py-3 hover:bg-gray-100 font-bold text-lg"
+                  className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-white font-bold text-lg"
                 >
                   +
                 </button>
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
               </span>
             </div>
@@ -164,7 +163,7 @@ return res.json();
             <Button
               onClick={handleAddToCart}
               disabled={product.stock === 0}
-              className="w-full bg-[#333333] hover:bg-[#444444] text-white py-6 text-lg rounded-2xl font-['Poppins'] font-medium shadow-lg"
+              className="w-full bg-[#333333] hover:bg-[#444444] dark:bg-white dark:text-black dark:hover:bg-gray-200 text-white py-6 text-lg rounded-2xl font-['Poppins'] font-medium shadow-lg"
             >
               ADD TO CART
             </Button>
@@ -172,7 +171,7 @@ return res.json();
             <Link href="/cart">
               <Button
                 variant="outline"
-                className="w-full mt-4 py-6 text-lg rounded-2xl font-['Poppins']"
+                className="w-full mt-4 py-6 text-lg rounded-2xl font-['Poppins'] dark:text-white dark:border-gray-600 dark:hover:bg-gray-800"
               >
                 VIEW CART
               </Button>

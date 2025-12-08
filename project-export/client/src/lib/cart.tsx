@@ -33,10 +33,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [sessionId] = useState(getOrCreateSessionId);
   const queryClient = useQueryClient();
 
+  // FIX: Define the Base URL from environment variables
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+
   const { data: items = [], isLoading } = useQuery<CartItemWithProduct[]>({
     queryKey: ["/api/cart", sessionId],
     queryFn: async () => {
-      const res = await fetch(`/api/cart/${sessionId}`);
+      // FIX: Use baseUrl
+      const res = await fetch(`${baseUrl}/api/cart/${sessionId}`);
       if (!res.ok) throw new Error("Failed to fetch cart");
       return res.json();
     },
@@ -44,7 +48,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addMutation = useMutation({
     mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
-      const res = await fetch("/api/cart", {
+      // FIX: Use baseUrl
+      const res = await fetch(`${baseUrl}/api/cart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, productId, quantity }),
@@ -59,7 +64,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateMutation = useMutation({
     mutationFn: async ({ itemId, quantity }: { itemId: string; quantity: number }) => {
-      const res = await fetch(`/api/cart/${itemId}`, {
+      // FIX: Use baseUrl
+      const res = await fetch(`${baseUrl}/api/cart/${itemId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity }),
@@ -74,7 +80,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeMutation = useMutation({
     mutationFn: async (itemId: string) => {
-      const res = await fetch(`/api/cart/${itemId}`, { method: "DELETE" });
+      // FIX: Use baseUrl
+      const res = await fetch(`${baseUrl}/api/cart/${itemId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to remove from cart");
     },
     onSuccess: () => {
@@ -84,7 +91,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/cart/session/${sessionId}`, { method: "DELETE" });
+      // FIX: Use baseUrl
+      const res = await fetch(`${baseUrl}/api/cart/session/${sessionId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to clear cart");
     },
     onSuccess: () => {
@@ -93,8 +101,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   });
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const tax = subtotal * 0.08;
+  const subtotal = items.reduce((sum, item) => {
+    // Handle cases where product might be null/undefined to prevent crashes
+    const price = item.product ? Number(item.product.price) : 0;
+    return sum + price * item.quantity;
+  }, 0);
+  const tax = subtotal * 0.08; // 8% Tax
   const total = subtotal + tax;
 
   return (

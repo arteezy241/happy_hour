@@ -6,24 +6,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Product, Category } from "@shared/schema";
 
 export default function Home() {
+  // 1. FIX: Fetch Featured Products with Base URL
   const { data: featuredProducts, isLoading: loadingProducts } = useQuery<Product[]>({
     queryKey: ["/api/products", "featured"],
     queryFn: async () => {
-      // Define the base URL (uses your Render backend link in production)
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
-
-// Fetch using the full URL + your specific query
-const res = await fetch(`${baseUrl}/api/products?featured=true`);
-
-if (!res.ok) throw new Error("Failed to fetch products");
-return res.json();
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+      const res = await fetch(`${baseUrl}/api/products?featured=true`);
+      if (!res.ok) throw new Error("Failed to fetch products");
+      return res.json();
     },
   });
 
+  // 2. FIX: Fetch Categories with Base URL
   const { data: categories, isLoading: loadingCategories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
     queryFn: async () => {
-      const res = await fetch("/api/categories");
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+      const res = await fetch(`${baseUrl}/api/categories`);
       if (!res.ok) throw new Error("Failed to fetch categories");
       return res.json();
     },
@@ -31,12 +30,13 @@ return res.json();
 
   return (
     <div className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
+      {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-6">
             <img 
               src="/figmaAssets/image-1.png" 
-              alt="Happy Hour Liquors" 
+              alt="Happy Hour Liquors"
               className="w-48 h-48 mx-auto object-contain rounded-3xl"
             />
           </div>
@@ -47,13 +47,15 @@ return res.json();
             "celebrating the craft behind every bottle"
           </p>
           <Link href="/shop">
-            <Button className="bg-[#333333] hover:bg-[#444444] text-white px-10 py-6 text-lg rounded-2xl font-['Poppins'] font-medium shadow-lg">
+            <Button className="bg-[#333333] hover:bg-[#444444] text-white px-10 py-6 text-lg rounded-2xl font-['Poppins'] font-medium shadow-lg transition-transform hover:scale-105">
               SHOP NOW
             </Button>
           </Link>
         </div>
       </section>
-      <section className="py-16 px-6 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+
+      {/* Shop by Category */}
+      <section className="py-16 px-6 bg-gray-50 dark:bg-black transition-colors duration-300">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-['Playfair_Display'] text-3xl font-bold text-center mb-10 dark:text-white">
             Shop by Category
@@ -66,14 +68,16 @@ return res.json();
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {categories?.slice(0, 8).map((category) => (
+              {categories?.map((category) => (
                 <Link key={category.id} href={`/shop?category=${category.id}`}>
-                  <Card className="cursor-pointer hover:shadow-lg transition-shadow rounded-2xl overflow-hidden">
-                    <CardContent className="p-6 text-center">
-                      <h3 className="font-['Poppins'] font-medium text-lg">{category.name}</h3>
-                      <p className="text-sm text-gray-500 mt-1">{category.description}</p>
-                    </CardContent>
-                  </Card>
+                  <div className="border border-gray-300 bg-white dark:bg-gray-900 dark:border-gray-700 p-6 rounded-2xl text-center hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col justify-center items-center gap-2 group">
+                    <h3 className="font-['Playfair_Display'] font-bold text-xl group-hover:text-[#333333] dark:text-white dark:group-hover:text-gray-300 transition-colors">
+                      {category.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                      {category.description}
+                    </p>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -81,23 +85,28 @@ return res.json();
         </div>
       </section>
 
-      <section className="py-16 px-6 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      {/* Featured Products */}
+      <section className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-['Playfair_Display'] text-3xl font-bold text-center mb-10 dark:text-white">
             Featured Products
           </h2>
           {loadingProducts ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-80 rounded-2xl" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-[300px] w-full rounded-2xl" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {featuredProducts?.map((product) => (
                 <Link key={product.id} href={`/product/${product.id}`}>
-                  <Card className="cursor-pointer hover:shadow-xl transition-shadow rounded-2xl overflow-hidden h-full">
-                    <div className="aspect-square overflow-hidden bg-gray-100">
+                  <Card className="cursor-pointer hover:shadow-xl transition-shadow rounded-2xl overflow-hidden h-full dark:bg-gray-900 dark:border-gray-800">
+                    <div className="aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
                       <img
                         src={product.imageUrl}
                         alt={product.name}
@@ -105,12 +114,12 @@ return res.json();
                       />
                     </div>
                     <CardContent className="p-4">
-                      <h3 className="font-['Poppins'] font-medium text-lg mb-1 dark:text-white">{product.name}</h3>
-                      <p className="text-sm text-gray-500 mb-2">{product.volume}</p>
+                      <h3 className="font-['Poppins'] font-medium text-lg mb-1 dark:text-white">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-2 dark:text-gray-400">{product.volume}</p>
                       <p className="font-['Poppins'] font-bold text-lg text-[#333333] dark:text-white mb-6">
-                        <p className="font-['Poppins'] font-bold text-lg text-[#333333] dark:text-white mb-6">
-  ₱{Number(product.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-</p>
+                        {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(product.price))}
                       </p>
                     </CardContent>
                   </Card>
@@ -120,7 +129,7 @@ return res.json();
           )}
           <div className="text-center mt-10">
             <Link href="/shop">
-              <Button variant="outline" className="rounded-2xl px-8 py-6 text-lg font-['Poppins']">
+              <Button variant="outline" className="rounded-2xl px-8 py-6 text-lg font-['Poppins'] dark:text-white dark:border-gray-600 dark:hover:bg-gray-800">
                 View All Products
               </Button>
             </Link>
