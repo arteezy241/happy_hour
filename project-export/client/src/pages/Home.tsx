@@ -9,9 +9,14 @@ export default function Home() {
   const { data: featuredProducts, isLoading: loadingProducts } = useQuery<Product[]>({
     queryKey: ["/api/products", "featured"],
     queryFn: async () => {
-      const res = await fetch("/api/products?featured=true");
-      if (!res.ok) throw new Error("Failed to fetch products");
-      return res.json();
+      // Define the base URL (uses your Render backend link in production)
+const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+
+// Fetch using the full URL + your specific query
+const res = await fetch(`${baseUrl}/api/products?featured=true`);
+
+if (!res.ok) throw new Error("Failed to fetch products");
+return res.json();
     },
   });
 

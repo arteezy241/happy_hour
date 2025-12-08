@@ -29,12 +29,17 @@ export default function Shop() {
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", selectedCategory, searchQuery],
     queryFn: async () => {
-      let url = "/api/products";
+      // FIX: Get the backend URL from the environment variable
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+      
+      let url = `${baseUrl}/api/products`;
+      
       if (searchQuery) {
         url += `?search=${encodeURIComponent(searchQuery)}`;
       } else if (selectedCategory) {
         url += `?category=${selectedCategory}`;
       }
+      
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch products");
       return res.json();

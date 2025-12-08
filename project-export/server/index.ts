@@ -1,10 +1,11 @@
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-
+import cors from "cors";
 const app = express();
+app.use(cors()); // <--- This allows the frontend to talk to the backend
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
   const start = Date.now();
