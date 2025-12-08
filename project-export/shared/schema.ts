@@ -1,65 +1,60 @@
+import { pgTable, text, serial, integer, boolean, numeric, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const categorySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  imageUrl: z.string().optional(),
+// 1. Categories Table
+export const categories = pgTable("categories", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
 });
 
-export const productSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  categoryId: z.string(),
-  description: z.string(),
-  price: z.number(),
-  volume: z.string(),
-  abv: z.number().optional(),
-  imageUrl: z.string(),
-  tags: z.array(z.string()).optional(),
-  isFeatured: z.boolean().default(false),
-  stock: z.number().default(100),
+// 2. Products Table
+export const products = pgTable("products", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  categoryId: text("category_id").notNull().references(() => categories.id),
+  description: text("description").notNull(),
+  price: numeric("price").notNull(),
+  volume: text("volume").notNull(),
+  abv: numeric("abv").notNull(),
+  imageUrl: text("image_url").notNull(),
+  stock: integer("stock").notNull(),
+  isFeatured: boolean("is_featured").notNull().default(false),
+  tags: jsonb("tags").$type<string[]>().notNull(),
 });
 
-export const cartItemSchema = z.object({
-  id: z.string(),
-  sessionId: z.string(),
-  productId: z.string(),
-  quantity: z.number().min(1),
+// 3. Cart Items Table
+export const cartItems = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  productId: text("product_id").notNull().references(() => products.id),
+  quantity: integer("quantity").notNull(),
 });
 
-export const orderSchema = z.object({
-  id: z.string(),
-  sessionId: z.string(),
-  customerName: z.string(),
-  email: z.string().email(),
-  phone: z.string(),
-  address: z.string(),
-  city: z.string(),
-  state: z.string(),
-  zipCode: z.string(),
-  items: z.array(z.object({
-    productId: z.string(),
-    quantity: z.number(),
-    price: z.number(),
-  })),
-  subtotal: z.number(),
-  tax: z.number(),
-  total: z.number(),
-  status: z.enum(["pending", "confirmed", "shipped", "delivered"]).default("pending"),
-  createdAt: z.string(),
+// 4. Orders Table
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  status: text("status").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  // Customer Info
+  customerName: text("customer_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
 });
 
-export const insertCategorySchema = categorySchema.omit({ id: true });
-export const insertProductSchema = productSchema.omit({ id: true });
-export const insertCartItemSchema = cartItemSchema.omit({ id: true });
-export const insertOrderSchema = orderSchema.omit({ id: true, createdAt: true, status: true });
+// --- Zod Schemas & Types ---
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({ id: true });
+export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, status: true, createdAt: true });
 
-export type Category = z.infer<typeof categorySchema>;
-export type Product = z.infer<typeof productSchema>;
-export type CartItem = z.infer<typeof cartItemSchema>;
-export type Order = z.infer<typeof orderSchema>;
-export type InsertCategory = z.infer<typeof insertCategorySchema>;
-export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type Category = typeof categories.$inferSelect;
+export type Product = typeof products.$inferSelect;
+export type CartItem = typeof cartItems.$inferSelect;
+export type Order = typeof orders.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
