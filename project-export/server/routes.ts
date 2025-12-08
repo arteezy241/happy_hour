@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { db } from "./storage";
+import { storage } from "./storage";
 import { insertCartItemSchema, insertOrderSchema } from "@shared/schema";
 import { z } from "zod";
 
