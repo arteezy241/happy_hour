@@ -1,3 +1,5 @@
+import About from "@/pages/About";
+import Faq from "@/pages/FAQ";
 import Cover from "@/pages/Cover";
 import { Switch, Route, Link, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
@@ -12,7 +14,7 @@ import ProductDetail from "@/pages/ProductDetail";
 import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import OrderConfirmation from "@/pages/OrderConfirmation";
-import { ShoppingCart, Home as HomeIcon, Store, Menu, X, Sun, Moon, Users } from "lucide-react"; // ADDED Users ICON
+import { ShoppingCart, Home as HomeIcon, Store, Menu, X, Sun, Moon, Users, Info, HelpCircle } from "lucide-react"; // ADDED Users ICON
 import { useEffect } from "react";
 import { useState } from "react";
 
@@ -64,6 +66,17 @@ function Navigation() {
             <span className={`flex items-center gap-2 cursor-pointer font-['Poppins'] ${isActive('/shop') ? 'text-black dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}>
               <Store size={18} />
               Shop
+            </span>
+          </Link>
+          {/* ... after the Shop link ... */}
+          <Link href="/about">
+            <span className={`flex items-center gap-2 cursor-pointer font-['Poppins'] ${isActive('/about') ? 'text-black dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}>
+              About
+            </span>
+          </Link>
+          <Link href="/faq">
+            <span className={`flex items-center gap-2 cursor-pointer font-['Poppins'] ${isActive('/faq') ? 'text-black dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}>
+              FAQ
             </span>
           </Link>
           <Link href="/team">
@@ -119,6 +132,16 @@ function Navigation() {
               <Users size={18} className="inline mr-2" /> Team
             </span>
           </Link>
+          <Link href="/about">
+            <span className={`block py-2 cursor-pointer font-['Poppins'] ${isActive('/about') ? 'text-black dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`} onClick={() => setMobileMenuOpen(false)}>
+              <Info size={18} className="inline mr-2" /> About Us
+            </span>
+          </Link>
+          <Link href="/faq">
+            <span className={`block py-2 cursor-pointer font-['Poppins'] ${isActive('/faq') ? 'text-black dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`} onClick={() => setMobileMenuOpen(false)}>
+              <HelpCircle size={18} className="inline mr-2" /> FAQ
+            </span>
+          </Link>
           
           <div className="flex items-center justify-between py-2 border-t dark:border-gray-700 pt-3">
             <span className="text-gray-500 dark:text-gray-400 font-['Poppins']">Toggle Dark Mode</span>
@@ -139,6 +162,7 @@ function Navigation() {
 function Router() {
   return (
     <Switch>
+      
       <Route path="/" component={Home} />
       <Route path="/shop" component={Shop} />
       <Route path="/product/:id" component={ProductDetail} />
@@ -146,6 +170,8 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/order-confirmation/:id" component={OrderConfirmation} />
       <Route path="/team" component={Cover} /> {/* <--- OPTION A: ADDED TEAM ROUTE */}
+      <Route path="/about" component={About} />
+      <Route path="/faq" component={Faq} />
       <Route component={NotFound} />
     </Switch>
   );
