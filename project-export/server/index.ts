@@ -53,7 +53,12 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    // serveStatic(app); <--- Commented out to prevent crash
+    
+    // Add a simple health check route
+    app.get("/", (_req, res) => {
+      res.send("API is running!");
+    });
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
