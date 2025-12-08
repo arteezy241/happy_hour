@@ -1,3 +1,4 @@
+import Cover from "@/pages/Cover";
 import { Switch, Route, Link, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -11,8 +12,8 @@ import ProductDetail from "@/pages/ProductDetail";
 import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import OrderConfirmation from "@/pages/OrderConfirmation";
-import { ShoppingCart, Home as HomeIcon, Store, Menu, X, Sun, Moon } from "lucide-react";
-import { useEffect } from "react"; // Make sure useEffect is imported too!
+import { ShoppingCart, Home as HomeIcon, Store, Menu, X, Sun, Moon, Users } from "lucide-react"; // ADDED Users ICON
+import { useEffect } from "react";
 import { useState } from "react";
 
 function Navigation() {
@@ -64,6 +65,14 @@ function Navigation() {
                 Shop
               </span>
             </Link>
+            {/* START: ADDED COVER PAGE LINK */}
+            <Link href="/team">
+              <span className={`flex items-center gap-2 cursor-pointer font-['Poppins'] ${isActive('/team') ? 'text-black dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}>
+                <Users size={18} />
+                Team
+              </span>
+            </Link>
+            {/* END: ADDED COVER PAGE LINK */}
 
             {/* --- TOGGLE BUTTON --- */}
             <button 
@@ -102,6 +111,7 @@ function Router() {
       <Route path="/cart" component={Cart} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/order-confirmation/:id" component={OrderConfirmation} />
+      <Route path="/team" component={Cover} /> {/* <--- OPTION A: ADDED TEAM ROUTE */}
       <Route component={NotFound} />
     </Switch>
   );
