@@ -6,12 +6,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Product, Category } from "@shared/schema";
 
 export default function Home() {
+  // Define the base URL once
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+
   // 1. FIX: Fetch Featured Products with Base URL
   const { data: featuredProducts, isLoading: loadingProducts } = useQuery<Product[]>({
     queryKey: ["/api/products", "featured"],
     queryFn: async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
-      const res = await fetch(`${baseUrl}/api/products?featured=true`);
+      // Original: const res = await fetch("/api/products?featured=true");
+      const res = await fetch(`${baseUrl}/api/products?featured=true`); 
       if (!res.ok) throw new Error("Failed to fetch products");
       return res.json();
     },
@@ -21,7 +24,7 @@ export default function Home() {
   const { data: categories, isLoading: loadingCategories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
     queryFn: async () => {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+      // Original: const res = await fetch("/api/categories");
       const res = await fetch(`${baseUrl}/api/categories`);
       if (!res.ok) throw new Error("Failed to fetch categories");
       return res.json();
