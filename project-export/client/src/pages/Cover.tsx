@@ -7,7 +7,7 @@ export default function Cover() {
   const teamMembers = [
     "Sarria Mhico - Lead Developer,UI/UX Designer,database designer,hosting manager",
     "Mabingnay John Kyle - UI/UX Designer,data engineer",
-    "Amora John Stanford - Video Editor,script writer",
+    "Amora John Stanford - Video Editor,script writer,FIGMA designer/conceptualizer",
     "Navarro Sean Andrei - Shop owner"
   ];
 
