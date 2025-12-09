@@ -5,7 +5,7 @@ School project :)
 A modern, full-stack e-commerce application for browsing and purchasing premium spirits. Built with a React frontend and a Node.js/Express backend, powered by a PostgreSQL database.
 
 🚀 Live Demo
-Store URL: https://happy-hour-shop.onrender.com
+Store URL: https://happy-hour-1.onrender.com
 
 API URL: https://happy-hour-moxu.onrender.com
 
