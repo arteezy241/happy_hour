@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20 px-6">
+      <section className="relative animated-gradient text-white py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-6">
             <img 
@@ -89,57 +90,38 @@ export default function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="font-['Playfair_Display'] text-3xl font-bold text-center mb-10 dark:text-white">
-            Featured Products
-          </h2>
-          {loadingProducts ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="h-[300px] w-full rounded-2xl" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {featuredProducts?.map((product) => (
-                <Link key={product.id} href={`/product/${product.id}`}>
-                  <Card className="cursor-pointer hover:shadow-xl transition-shadow rounded-2xl overflow-hidden h-full dark:bg-gray-900 dark:border-gray-800">
-                    <div className="aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-['Poppins'] font-medium text-lg mb-1 dark:text-white">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-gray-500 mb-2 dark:text-gray-400">{product.volume}</p>
-                      <p className="font-['Poppins'] font-bold text-lg text-[#333333] dark:text-white mb-6">
-                        {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(product.price))}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          )}
-          <div className="text-center mt-10">
-            <Link href="/shop">
-              <Button variant="outline" className="rounded-2xl px-8 py-6 text-lg font-['Poppins'] dark:text-white dark:border-gray-600 dark:hover:bg-gray-800">
-                View All Products
-              </Button>
-            </Link>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  {featuredProducts?.map((product, index) => (
+    <motion.div
+      key={product.id}
+      initial={{ opacity: 0, y: 50 }}      // Start invisible and lower down
+      whileInView={{ opacity: 1, y: 0 }}   // Animate to visible and original position
+      transition={{ duration: 0.5, delay: index * 0.1 }} // Stagger effect (one by one)
+      viewport={{ once: true }}            // Only animate the first time you see it
+    >
+      <Link href={`/product/${product.id}`}>
+        <Card className="cursor-pointer hover:shadow-xl transition-shadow rounded-2xl overflow-hidden h-full dark:bg-gray-900 dark:border-gray-800">
+          <div className="aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className="w-full h-full object-cover hover:scale-105 transition-transform"
+            />
           </div>
-        </div>
-      </section>
-
+          <CardContent className="p-4">
+            <h3 className="font-['Poppins'] font-medium text-lg mb-1 dark:text-white">
+              {product.name}
+            </h3>
+            <p className="text-sm text-gray-500 mb-2 dark:text-gray-400">{product.volume}</p>
+            <p className="font-['Poppins'] font-bold text-lg text-[#333333] dark:text-white mb-6">
+              {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(product.price))}
+            </p>
+          </CardContent>
+        </Card>
+      </Link>
+    </motion.div>
+  ))}
+</div>
       <footer className="bg-gray-900 text-white py-12 px-6">
         <div className="max-w-6xl mx-auto text-center">
           <h3 className="font-['Playfair_Display'] text-2xl font-bold mb-2">Happy Hour Liquors</h3>
